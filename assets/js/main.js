@@ -136,7 +136,10 @@
     try {
       const paths = [location.href, './assets/css/main.css', './assets/js/config.js', './assets/js/main.js', './assets/js/pray-times.js'];
       const sources = await Promise.all(paths.map(async path => {
-        const response = await fetch(new URL(path, location.href), { cache: 'no-store', signal: AbortSignal.timeout(10_000) });
+        // Refresh the browser cache too, so the subsequent reload uses these files.
+        const response = await fetch(new URL(path, location.href), {
+          cache: 'reload', headers: { 'Cache-Control': 'no-cache' }, signal: AbortSignal.timeout(10_000),
+        });
         if (!response.ok) throw new Error(`Update check failed: ${response.status}`);
         return response.text();
       }));
@@ -155,6 +158,11 @@
   checkForUpdates();
   setInterval(checkForUpdates, PRAYER_CONFIG.updateInterval);
   document.addEventListener('visibilitychange', () => {
-    if (!document.hidden) tick();
+    if (!document.hidden) {
+      tick();
+      checkForUpdates();
+    }
   });
+  window.addEventListener('online', checkForUpdates);
+  window.addEventListener('pageshow', checkForUpdates);
 })();

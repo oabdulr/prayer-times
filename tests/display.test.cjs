@@ -13,6 +13,7 @@ function displayAt(iso) {
       querySelectorAll: selector => selector === '[id]' ? Object.values(elements) : [],
       addEventListener() {},
     },
+    window: { addEventListener() {} },
     location: { protocol: 'file:' },
     setInterval: callback => intervals.push(callback),
   });
